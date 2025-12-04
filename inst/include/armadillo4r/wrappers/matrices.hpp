@@ -72,7 +72,9 @@ inline TargetMatType as_target_mat(const integers_matrix<>& x) {
   typename TargetMatType::elem_type* dst = y.memptr();
 
 // Copy all entries in one flat loop (faster than y(i,j) indexing)
+#ifdef _OPENMP
 #pragma omp parallel for if (nm > 10000)
+#endif
   for (uword idx = 0; idx < nm; ++idx) {
     dst[idx] = static_cast<typename TargetMatType::elem_type>(src[idx]);
   }
@@ -198,12 +200,9 @@ inline complexes_matrix<> Mat_to_complexes_matrix_(const Mat<T>& A) {
 
   writable::complexes_matrix<> B(n, m);
 
-  // Copy complex matrix elements directly
-  for (int i = 0; i < n; ++i) {
-    for (int j = 0; j < m; ++j) {
-      B(i, j) = A(i, j);
-    }
-  }
+  // Use memcpy for efficient copying (complex numbers are contiguous in memory)
+  Rcomplex* B_data = COMPLEX(B);
+  std::memcpy(B_data, A.memptr(), n * m * sizeof(std::complex<double>));
 
   return B;
 }

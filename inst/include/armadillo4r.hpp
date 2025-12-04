@@ -1,3 +1,30 @@
+// Conversion function usage guidelines
+//
+// Available conversion functions (from armadillo4r/wrappers/):
+//
+// From cpp4r to Armadillo:
+// - as_Mat(doubles_matrix<>) -> Mat<double>
+// - as_Mat(integers_matrix<>) -> Mat<int>
+// - as_mat() - lowercase alias for as_Mat()
+// - as_imat(integers_matrix<>) -> imat
+// - as_umat(integers_matrix<>) -> umat
+// - as_fmat(doubles_matrix<>) -> fmat
+// - as_Col(doubles) -> Col<double> / vec
+// - as_Col(integers) -> Col<int>
+// - as_col() - lowercase alias for as_Col()
+// - as_uvec(integers) -> uvec
+//
+// From Armadillo to cpp4r:
+// - as_doubles_matrix(mat/fmat) -> doubles_matrix<>
+// - as_integers_matrix(imat/umat) -> integers_matrix<>
+// - as_complexes_matrix(cx_mat) -> complexes_matrix<>
+// - as_doubles(vec) -> doubles
+// - as_integers(ivec/uvec) -> integers
+// - cpp4r::as_sexp() - generic conversion to SEXP
+//   * vec/ivec/uvec/fvec -> doubles/integers
+//   * mat/imat/umat/fmat -> doubles_matrix<>/integers_matrix<>
+//   * rowvec/irowvec/urowvec/frowvec -> doubles_matrix<>/integers_matrix<>
+
 #pragma once
 
 #ifdef _OPENMP
@@ -297,24 +324,24 @@ inline SEXP as_sexp(const arma::umat& x) {
 
 template <>
 inline SEXP as_sexp(const arma::vec& x) {
-  return ::as_doubles_matrix(x);
+  return ::as_doubles(x);
 }
 
 template <>
 inline SEXP as_sexp(const arma::ivec& x) {
-  return ::as_integers_matrix(x);
+  return ::as_integers(x);
 }
 
 template <>
 inline SEXP as_sexp(const arma::uvec& x) {
   arma::Col<int> temp = arma::conv_to<arma::Col<int>>::from(x);
-  return ::as_integers_matrix(temp);
+  return ::as_integers(temp);
 }
 
 template <>
 inline SEXP as_sexp(const arma::fvec& x) {
   arma::vec temp = arma::conv_to<arma::vec>::from(x);
-  return ::as_doubles_matrix(temp);
+  return ::as_doubles(temp);
 }
 
 template <>
